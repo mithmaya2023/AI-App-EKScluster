@@ -1,0 +1,62 @@
+name: Build and Deploy to EKS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up AWS credentials
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # Login to Amazon ECR
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      # Build Docker image
+      - name: Build Docker image
+        run: |
+          docker build -t ai-app:latest .
+
+      # Tag Docker image
+      - name: Tag Docker image
+        run: |
+          docker tag ai-app:latest ${{ secrets.ECR_REPOSITORY }}:latest
+
+      # Push Docker image to ECR
+      - name: Push Docker image to ECR
+        run: |
+          docker push ${{ secrets.ECR_REPOSITORY }}:latest
+
+      # Update kubectl config to use EKS cluster
+      - name: Update kubeconfig
+        run: |
+          #aws eks update-kubeconfig --name test-ai-app --region ${{ secrets.AWS_REGION }}
+          aws eks update-kubeconfig --name test-ai-app --region us-west-2
+
+      # Apply Deployment and Service files
+      - name: Deploy to EKS
+        run: |
+          kubectl apply -f deployment.yaml
+          kubectl apply -f service.yaml
+
+      # Verify deployment
+      - name: Verify deployment
+        run: |
+          kubectl get pods -n default
+          kubectl get svc -n default
+          curl -X POST http://aa3016e8212444260abae5a456b75153-1918533501.us-west-2.elb.amazonaws.com/predict -H "Content-Type: application/json" -d '{"data": [2, 5]}'
