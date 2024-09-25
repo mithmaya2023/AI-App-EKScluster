@@ -2,7 +2,7 @@
 
 # Set the AWS region
 AWS_REGION="us-west-2"
-EKS_CLUSTER_NAME="test-ai-app"
+EKS_CLUSTER_NAME="test-ai-app1"
 S3_BUCKET_NAME="test-ai-app"
 ECR_REPOSITORY="ai-app"
 
