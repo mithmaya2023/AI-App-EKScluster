@@ -58,7 +58,22 @@ jobs:
       - name: Verify deployment
         run: |
           kubectl get pods -n default
-          kubectl get svc -n default
-          #curl -X POST http://aa3016e8212444260abae5a456b75153-1918533501.us-west-2.elb.amazonaws.com/predict -H "Content-Type: application/json" -d '{"data": [2, 5]}'
+          kubectl get svc -n default# Get the services and extract the URL of your service
+      - name: Get service URL
+        id: get-service-url
+        run: |
           serv_url=$(kubectl get services | grep amazon | awk '{print $4}')
-          curl -X POST $serv_url/predict -H "Content-Type: application/json" -d '{"data": [2, 5]}
+          echo "Service URL: $serv_url"
+          echo "::set-output name=serv_url::$serv_url"
+
+      # Use the service URL to trigger a prediction
+      - name: Test AI Model Prediction
+        run: |
+          curl -X POST ${{ steps.get-service-url.outputs.serv_url }}/predict \
+          -H "Content-Type: application/json" \
+          -d '{"data": [2, 5]}'
+          #curl -X POST http://aa3016e8212444260abae5a456b75153-1918533501.us-west-2.elb.amazonaws.com/predict -H "Content-Type: application/json" -d '{"data": [2, 5]}'
+          #serv_url=$(kubectl get services | grep amazon | awk '{print $4}')
+          #curl -X POST $serv_url/predict -H "Content-Type: application/json" -d '{"data": [2, 5]}
+
+      
