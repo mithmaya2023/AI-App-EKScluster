@@ -46,7 +46,7 @@ jobs:
       - name: Update kubeconfig
         run: |
           #aws eks update-kubeconfig --name test-ai-app --region ${{ secrets.AWS_REGION }}
-          aws eks update-kubeconfig --name test-ai-app --region us-west-2
+          aws eks update-kubeconfig --name test-ai-app1 --region us-west-2
 
       # Apply Deployment and Service files
       - name: Deploy to EKS
@@ -59,4 +59,6 @@ jobs:
         run: |
           kubectl get pods -n default
           kubectl get svc -n default
-          curl -X POST http://aa3016e8212444260abae5a456b75153-1918533501.us-west-2.elb.amazonaws.com/predict -H "Content-Type: application/json" -d '{"data": [2, 5]}'
+          #curl -X POST http://aa3016e8212444260abae5a456b75153-1918533501.us-west-2.elb.amazonaws.com/predict -H "Content-Type: application/json" -d '{"data": [2, 5]}'
+          serv_url=$(kubectl get services | grep amazon | awk '{print $4}')
+          curl -X POST $serv_url/predict -H "Content-Type: application/json" -d '{"data": [2, 5]}
