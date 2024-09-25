@@ -45,8 +45,8 @@ jobs:
       # Update kubectl config to use EKS cluster
       - name: Update kubeconfig
         run: |
-          #aws eks update-kubeconfig --name test-ai-app --region ${{ secrets.AWS_REGION }}
-          aws eks update-kubeconfig --name test-ai-app1 --region us-west-2
+          aws eks update-kubeconfig --name test-ai-app1 --region ${{ secrets.AWS_REGION }}
+          #aws eks update-kubeconfig --name test-ai-app1 --region us-west-2
 
       # Apply Deployment and Service files
       - name: Deploy to EKS
