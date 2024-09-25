@@ -58,7 +58,7 @@ jobs:
       - name: Verify deployment
         run: |
           kubectl get pods -n default
-          kubectl get svc -n default# Get the services and extract the URL of your service
+          kubectl get svc -n default
       - name: Get service URL
         id: get-service-url
         run: |
